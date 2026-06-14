@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Demo</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 0 16px; }
+        h1 { text-align: center; }
+        form { display: flex; gap: 8px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 8px; }
+        button { padding: 8px 16px; cursor: pointer; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .done { text-decoration: line-through; color: gray; }
+    </style>
+</head>
+<body>
+    <h1>My Tasks</h1>
+
+    <!-- Form to add a new task -->
+    <form id="task-form">
+        <input type="text" id="task-title" placeholder="New task..." required>
+        <button type="submit">Add</button>
+    </form>
+
+    <!-- Tasks get rendered here -->
+    <ul id="task-list"></ul>
+
+    <script>
+        // Base URL of the Spring Boot API.
+        const API = "http://localhost:8080/tasks";
+
+        // Fetch all tasks and render them in the list.
+        async function loadTasks() {
+            const response = await fetch(API);
+            const tasks = await response.json();
+
+            const list = document.getElementById("task-list");
+            list.innerHTML = "";
+
+            tasks.forEach(task => {
+                const li = document.createElement("li");
+                li.textContent = task.title;
+                if (task.completed) {
+                    li.className = "done";
+                }
+                list.appendChild(li);
+            });
+        }
+
+        // Handle the "Add" form: POST a new task, then refresh the list.
+        document.getElementById("task-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const titleInput = document.getElementById("task-title");
+
+            await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: titleInput.value, completed: false })
+            });
+
+            titleInput.value = "";
+            loadTasks();
+        });
+
+        // Load tasks when the page opens.
+        loadTasks();
+    </script>
+</body>
+</html>
