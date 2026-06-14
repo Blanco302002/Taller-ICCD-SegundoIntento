@@ -4,8 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point of the Spring Boot application.
- * Running this class starts the embedded web server (default: http://localhost:8080).
+ * Punto de entrada de la aplicación Spring Boot.
+ * Al ejecutar esta clase se levanta el servidor web embebido
+ * (por defecto: http://localhost:8080).
  */
 @SpringBootApplication
 public class TaskDemoApplication {

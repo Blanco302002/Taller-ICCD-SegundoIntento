@@ -1,6 +1,9 @@
 # Maven build output
 target/
 
+# Base de datos H2 local (archivos generados en runtime)
+data/
+
 # IDE files
 .idea/
 *.iml

@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * REST controller exposing CRUD endpoints under /tasks.
- * @CrossOrigin lets the static frontend (opened from a file or another port)
- * call this API from the browser without CORS errors.
+ * Controlador REST que expone los endpoints CRUD bajo /tasks.
+ * @CrossOrigin permite que el frontend estático (abierto desde un archivo u
+ * otro puerto) llame a esta API desde el navegador sin errores de CORS.
  */
 @RestController
 @RequestMapping("/tasks")
@@ -29,19 +29,19 @@ public class TaskController {
         this.service = service;
     }
 
-    // GET /tasks  -> list all tasks
+    // GET /tasks  -> lista todas las tareas
     @GetMapping
     public List<Task> getAllTasks() {
         return service.getAllTasks();
     }
 
-    // POST /tasks -> create a new task
+    // POST /tasks -> crea una tarea nueva
     @PostMapping
     public Task createTask(@RequestBody Task task) {
         return service.createTask(task);
     }
 
-    // PUT /tasks/{id} -> update an existing task (404 if it doesn't exist)
+    // PUT /tasks/{id} -> actualiza una tarea existente (404 si no existe)
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
         return service.updateTask(id, task)
@@ -49,7 +49,7 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE /tasks/{id} -> delete a task
+    // DELETE /tasks/{id} -> borra una tarea
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         service.deleteTask(id);

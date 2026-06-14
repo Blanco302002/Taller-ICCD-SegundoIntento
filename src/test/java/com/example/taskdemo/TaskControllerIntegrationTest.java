@@ -16,14 +16,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Integration tests: they boot the full Spring context and exercise the
- * whole stack (HTTP request -> controller -> service -> repository -> H2).
+ * Tests de integración: levantan el contexto completo de Spring y ejercitan
+ * todo el stack (request HTTP -> controller -> service -> repositorio -> H2).
  *
- * - @SpringBootTest loads the real application context.
- * - @AutoConfigureMockMvc gives us MockMvc to fire fake HTTP requests.
- * - @ActiveProfiles("test") uses the isolated test database.
- * - @Transactional rolls back the DB changes after each test, so tests
- *   stay independent and start from a clean state.
+ * - @SpringBootTest carga el contexto real de la aplicación.
+ * - @AutoConfigureMockMvc nos da MockMvc para disparar requests HTTP simuladas.
+ * - @ActiveProfiles("test") usa la base de datos de test aislada (en memoria).
+ * - @Transactional hace rollback de los cambios en la base después de cada
+ *   test, así los tests quedan independientes y arrancan en un estado limpio.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,29 +40,29 @@ class TaskControllerIntegrationTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void getTasks_returnsTasksFromDatabase() throws Exception {
-        // Arrange: put one task directly in the H2 database.
-        repository.save(new Task("Existing task", false));
+    void getTasks_devuelveLasTareasDeLaBase() throws Exception {
+        // Preparación: metemos una tarea directo en la base H2.
+        repository.save(new Task("Tarea existente", false));
 
-        // Act + Assert: GET /tasks should return it through the full stack.
+        // Acción + verificación: GET /tasks debería devolverla por todo el stack.
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Existing task"))
+                .andExpect(jsonPath("$[0].title").value("Tarea existente"))
                 .andExpect(jsonPath("$[0].completed").value(false));
     }
 
     @Test
-    void postTask_savesTaskToDatabase() throws Exception {
-        Task newTask = new Task("Write integration test", true);
+    void postTask_guardaLaTareaEnLaBase() throws Exception {
+        Task newTask = new Task("Escribir test de integración", true);
         String json = objectMapper.writeValueAsString(newTask);
 
-        // POST /tasks should create the task and echo it back with an id.
+        // POST /tasks debería crear la tarea y devolverla con un id.
         mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.title").value("Write integration test"))
+                .andExpect(jsonPath("$.title").value("Escribir test de integración"))
                 .andExpect(jsonPath("$.completed").value(true));
     }
 }
