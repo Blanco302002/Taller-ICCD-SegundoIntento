@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Demo</title>
+    <title>Demo de Tareas</title>
     <style>
         body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 0 16px; }
         h1 { text-align: center; }
@@ -16,22 +16,22 @@
     </style>
 </head>
 <body>
-    <h1>My Tasks</h1>
+    <h1>Mis Tareas</h1>
 
-    <!-- Form to add a new task -->
+    <!-- Formulario para agregar una tarea nueva -->
     <form id="task-form">
-        <input type="text" id="task-title" placeholder="New task..." required>
-        <button type="submit">Add</button>
+        <input type="text" id="task-title" placeholder="Nueva tarea..." required>
+        <button type="submit">Agregar</button>
     </form>
 
-    <!-- Tasks get rendered here -->
+    <!-- Acá se dibujan las tareas -->
     <ul id="task-list"></ul>
 
     <script>
-        // Base URL of the Spring Boot API.
+        // URL base de la API de Spring Boot.
         const API = "http://localhost:8080/tasks";
 
-        // Fetch all tasks and render them in the list.
+        // Trae todas las tareas y las muestra en la lista.
         async function loadTasks() {
             const response = await fetch(API);
             const tasks = await response.json();
@@ -49,7 +49,7 @@
             });
         }
 
-        // Handle the "Add" form: POST a new task, then refresh the list.
+        // Maneja el formulario "Agregar": crea la tarea (POST) y refresca la lista.
         document.getElementById("task-form").addEventListener("submit", async (event) => {
             event.preventDefault();
             const titleInput = document.getElementById("task-title");
@@ -64,7 +64,7 @@
             loadTasks();
         });
 
-        // Load tasks when the page opens.
+        // Carga las tareas cuando se abre la página.
         loadTasks();
     </script>
 </body>

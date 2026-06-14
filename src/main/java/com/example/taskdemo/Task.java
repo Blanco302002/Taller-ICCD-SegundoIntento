@@ -6,21 +6,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 /**
- * The single domain entity of this demo.
- * Each Task is stored as one row in the "task" table of the H2 database.
+ * La única entidad de dominio de esta demo.
+ * Cada Task se guarda como una fila en la tabla "task" de la base H2.
  */
 @Entity
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // DB auto-increments the id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // la base autoincrementa el id
     private Long id;
 
     private String title;
 
     private boolean completed;
 
-    // JPA requires a no-args constructor.
+    // JPA necesita un constructor sin argumentos.
     public Task() {
     }
 
@@ -29,7 +29,7 @@ public class Task {
         this.completed = completed;
     }
 
-    // --- Getters and setters (used by Spring for JSON <-> object mapping) ---
+    // --- Getters y setters (los usa Spring para mapear JSON <-> objeto) ---
 
     public Long getId() {
         return id;
