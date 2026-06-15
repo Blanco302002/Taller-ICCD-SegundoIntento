@@ -1,0 +1,10 @@
+/* Estilos propios, además de los que trae Bootstrap. */
+
+/* Un poco de aire y un cursor de "mano" al pasar por las tareas. */
+.list-group-item {
+    transition: background-color 0.15s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f1f3f5;
+}

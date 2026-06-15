@@ -52,7 +52,7 @@ jobs:
 
   # ============================================================
   # 3) FEEDBACK a Slack  (Mecanismo de feedback del esquema)
-  #    Avisa al canal si el pipeline salió bien o mal.
+  #    Avisa al canal con un mensaje claro: estado, commit, autor y link.
   #    'if: always()' = se ejecuta aunque algún job anterior falle.
   # ============================================================
   notify:
@@ -62,12 +62,32 @@ jobs:
     if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Enviar mensaje a Slack
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          if [ "${{ needs.build.result }}" = "success" ] && [ "${{ needs.deploy.result }}" = "success" ]; then
-            MENSAJE="✅ Pipeline OK en main: tests pasaron y deploy a Render disparado."
+          # Tomamos solo la primera línea del mensaje del commit (más prolijo).
+          COMMIT_LINE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+
+          # Armamos el texto según haya salido bien o mal.
+          if [ "$BUILD_RESULT" = "success" ] && [ "$DEPLOY_RESULT" = "success" ]; then
+            TEXT=$(printf '%s\n%s\n%s\n%s' \
+              "✅ *Despliegue exitoso* — \`$GITHUB_REPOSITORY\`" \
+              "*Commit:* \`$SHORT_SHA\` — $COMMIT_LINE" \
+              "*Autor:* $GITHUB_ACTOR" \
+              "🔗 <$RUN_URL|Ver pipeline>   ·   <https://tareas-demo.onrender.com|Ver app>")
           else
-            MENSAJE="❌ Pipeline con problemas en main. Revisá GitHub Actions."
+            TEXT=$(printf '%s\n%s\n%s\n%s' \
+              "❌ *El pipeline falló* — \`$GITHUB_REPOSITORY\`" \
+              "*Commit:* \`$SHORT_SHA\` — $COMMIT_LINE" \
+              "*Autor:* $GITHUB_ACTOR" \
+              "🔗 <$RUN_URL|Ver el detalle del error>")
           fi
-          curl -fsSL -X POST -H 'Content-type: application/json' \
-            --data "{\"text\": \"$MENSAJE\"}" \
-            "${{ secrets.SLACK_WEBHOOK_URL }}"
+
+          # jq arma el JSON escapando todo de forma segura.
+          PAYLOAD=$(jq -n --arg text "$TEXT" '{ text: $text }')
+          curl -fsSL -X POST -H 'Content-type: application/json' --data "$PAYLOAD" "$SLACK_WEBHOOK_URL"
