@@ -28,13 +28,22 @@
             </div>
         </div>
 
-        <!-- Acá se dibuja la lista de tareas -->
-        <ul id="task-list" class="list-group"></ul>
-
-        <!-- Mensaje cuando no hay tareas -->
+        <!-- Mensaje cuando no hay NINGUNA tarea -->
         <p id="empty-message" class="text-center text-muted mt-3 d-none">
             No hay tareas todavía. ¡Agregá una! 🎉
         </p>
+
+        <!-- Sección: tareas por completar -->
+        <section id="pending-section" class="d-none">
+            <h6 class="text-uppercase text-muted mt-4 mb-2">Por completar</h6>
+            <ul id="pending-list" class="list-group"></ul>
+        </section>
+
+        <!-- Sección: tareas completadas (se muestra solo si hay alguna) -->
+        <section id="completed-section" class="d-none">
+            <h6 class="text-uppercase text-muted mt-4 mb-2">Completadas</h6>
+            <ul id="completed-list" class="list-group"></ul>
+        </section>
     </div>
 
     <!-- Toda la lógica JavaScript vive en su propio archivo -->
