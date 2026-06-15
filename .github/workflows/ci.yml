@@ -1,6 +1,6 @@
-name: CI
+name: CI/CD
 
-# Run the pipeline on every push to the main branch.
+# Dispara el pipeline en cada push a main y en cada Pull Request hacia main.
 on:
   push:
     branches: [ main ]
@@ -8,26 +8,66 @@ on:
     branches: [ main ]
 
 jobs:
+  # ============================================================
+  # 1) BUILD + TESTS  (Integración Continua)
+  #    Corre siempre: en los PR y en los push a main.
+  # ============================================================
   build:
+    name: Build y pruebas automáticas
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Get the source code.
-      - name: Checkout code
+      # Trae el código del repositorio.
+      - name: Checkout del código
         uses: actions/checkout@v4
 
-      # 2. Install Java 21 (Temurin distribution) with Maven dependency caching.
-      - name: Set up Java 21
+      # Instala Java 21 (Temurin) con cache de dependencias de Maven.
+      - name: Instalar Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
 
-      # 3. Run the tests (unit + integration).
-      - name: Run tests
+      # Ejecuta las pruebas automáticas (unitarias + integración).
+      - name: Correr los tests
         run: mvn test
 
-      # 4. Build the runnable jar.
-      - name: Package application
+      # Empaqueta la aplicación en un jar ejecutable.
+      - name: Empaquetar la app
         run: mvn package
+
+  # ============================================================
+  # 2) DEPLOY a Render  (Entrega Continua)
+  #    Solo cuando se hace push/merge a main, y SOLO si build pasó.
+  #    Llama al "Deploy Hook" de Render para que despliegue la app.
+  # ============================================================
+  deploy:
+    name: Desplegar en Render
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Disparar deploy en Render
+        run: curl -fsSL "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+  # ============================================================
+  # 3) FEEDBACK a Slack  (Mecanismo de feedback del esquema)
+  #    Avisa al canal si el pipeline salió bien o mal.
+  #    'if: always()' = se ejecuta aunque algún job anterior falle.
+  # ============================================================
+  notify:
+    name: Avisar a Slack
+    needs: [ build, deploy ]
+    runs-on: ubuntu-latest
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Enviar mensaje a Slack
+        run: |
+          if [ "${{ needs.build.result }}" = "success" ] && [ "${{ needs.deploy.result }}" = "success" ]; then
+            MENSAJE="✅ Pipeline OK en main: tests pasaron y deploy a Render disparado."
+          else
+            MENSAJE="❌ Pipeline con problemas en main. Revisá GitHub Actions."
+          fi
+          curl -fsSL -X POST -H 'Content-type: application/json' \
+            --data "{\"text\": \"$MENSAJE\"}" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
