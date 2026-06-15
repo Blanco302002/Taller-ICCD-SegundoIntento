@@ -8,3 +8,12 @@
 .list-group-item:hover {
     background-color: #f1f3f5;
 }
+
+/* El título es clickeable (completar/reabrir): mano + subrayado al pasar. */
+.task-title {
+    cursor: pointer;
+}
+
+.task-title:hover {
+    text-decoration: underline;
+}

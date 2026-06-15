@@ -4,15 +4,22 @@
 const API = "/tasks";
 
 // Referencias a los elementos del HTML que vamos a usar.
-const list = document.getElementById("task-list");
 const loading = document.getElementById("loading");
 const emptyMessage = document.getElementById("empty-message");
+const pendingSection = document.getElementById("pending-section");
+const pendingList = document.getElementById("pending-list");
+const completedSection = document.getElementById("completed-section");
+const completedList = document.getElementById("completed-list");
 
-// Trae todas las tareas (GET /tasks) y las dibuja en la lista.
+// Trae todas las tareas (GET /tasks) y las reparte en dos listas:
+// las pendientes arriba y las completadas abajo.
 async function loadTasks() {
     loading.classList.remove("d-none");   // mostrar el spinner
-    list.innerHTML = "";
+    pendingList.innerHTML = "";
+    completedList.innerHTML = "";
     emptyMessage.classList.add("d-none");
+    pendingSection.classList.add("d-none");
+    completedSection.classList.add("d-none");
 
     const response = await fetch(API);
     const tasks = await response.json();
@@ -25,35 +32,35 @@ async function loadTasks() {
         return;
     }
 
-    tasks.forEach(task => list.appendChild(renderTask(task)));
+    // Separamos según estén completadas o no.
+    const pending = tasks.filter(task => !task.completed);
+    const completed = tasks.filter(task => task.completed);
+
+    if (pending.length > 0) {
+        pending.forEach(task => pendingList.appendChild(renderTask(task)));
+        pendingSection.classList.remove("d-none");
+    }
+    if (completed.length > 0) {
+        completed.forEach(task => completedList.appendChild(renderTask(task)));
+        completedSection.classList.remove("d-none");
+    }
 }
 
-// Dibuja una tarea en modo NORMAL: checkbox + título a la izquierda,
-// botones "Modificar" y "Eliminar" a la derecha.
+// Dibuja una tarea: el título (clickeable) a la izquierda y los botones
+// "Modificar" y "Eliminar" a la derecha.
 function renderTask(task) {
     const li = document.createElement("li");
     li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-    // ----- Izquierda: checkbox de completada + título -----
-    const left = document.createElement("div");
-    left.className = "d-flex align-items-center gap-2";
-
-    // Checkbox: al tildarlo/destildarlo hace un PUT cambiando 'completed'.
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.className = "form-check-input mt-0";
-    checkbox.checked = task.completed;
-    checkbox.addEventListener("change", () => updateTask(task, { completed: checkbox.checked }));
-
-    // Título (tachado y gris si la tarea está completada).
+    // Título: al hacerle click, se completa o se reabre (mueve de lista).
     const titleSpan = document.createElement("span");
+    titleSpan.className = "task-title";
     titleSpan.textContent = task.title;
+    titleSpan.title = task.completed ? "Click para reabrir" : "Click para completar";
     if (task.completed) {
         titleSpan.classList.add("text-decoration-line-through", "text-muted");
     }
-
-    left.appendChild(checkbox);
-    left.appendChild(titleSpan);
+    titleSpan.addEventListener("click", () => updateTask(task, { completed: !task.completed }));
 
     // ----- Derecha: botones Modificar y Eliminar -----
     const buttons = document.createElement("div");
@@ -72,7 +79,7 @@ function renderTask(task) {
     buttons.appendChild(editButton);
     buttons.appendChild(deleteButton);
 
-    li.appendChild(left);
+    li.appendChild(titleSpan);
     li.appendChild(buttons);
     return li;
 }
