@@ -21,11 +21,11 @@ public class TaskService {
     }
 
     public List<Task> getAllTasks() {
-        return repository.findAll();
+        return List.of();
     }
 
     public Task createTask(Task task) {
-        return repository.save(task);
+        return task;
     }
 
     /**
