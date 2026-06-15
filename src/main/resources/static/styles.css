@@ -1,6 +1,5 @@
 /* Estilos propios, además de los que trae Bootstrap. */
 
-/* Un poco de aire y un cursor de "mano" al pasar por las tareas. */
 .list-group-item {
     transition: background-color 0.15s ease;
 }
@@ -9,11 +8,39 @@
     background-color: #f1f3f5;
 }
 
-/* El título es clickeable (completar/reabrir): mano + subrayado al pasar. */
+/* ---------- Título de la tarea con tachado ANIMADO ----------
+   La línea de tachado es un pseudo-elemento (::after) al que le animamos
+   el ANCHO. Así el tachado "se dibuja" o "se borra" de a poco, en vez de
+   aparecer/desaparecer de golpe (text-decoration no se puede animar). */
 .task-title {
+    position: relative;
+    display: inline-block;
     cursor: pointer;
 }
 
-.task-title:hover {
-    text-decoration: underline;
+.task-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    width: 0;                       /* pendiente: arranca sin tachar */
+    background-color: currentColor;
+    transition: width 0.25s ease;   /* esto produce la animación */
+}
+
+/* Tarea PENDIENTE: al pasar el mouse, se tacha (la línea crece de 0 a 100%). */
+.task-title:not(.completed):hover::after {
+    width: 100%;
+}
+
+/* Tarea COMPLETADA: la línea está dibujada siempre (tachada)... */
+.task-title.completed::after {
+    width: 100%;
+}
+
+/* ...y al pasar el mouse, se destacha (la línea se achica de 100% a 0). */
+.task-title.completed:hover::after {
+    width: 0;
 }
