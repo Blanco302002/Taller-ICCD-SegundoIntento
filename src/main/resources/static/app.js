@@ -58,7 +58,8 @@ function renderTask(task) {
     titleSpan.textContent = task.title;
     titleSpan.title = task.completed ? "Click para reabrir" : "Click para completar";
     if (task.completed) {
-        titleSpan.classList.add("text-decoration-line-through", "text-muted");
+        // La clase 'completed' dibuja el tachado (animado) vía CSS.
+        titleSpan.classList.add("completed", "text-muted");
     }
     titleSpan.addEventListener("click", () => updateTask(task, { completed: !task.completed }));
 
