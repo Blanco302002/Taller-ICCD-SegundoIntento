@@ -18,8 +18,7 @@ public class Task {
     private String title;
 
     private boolean completed;
-
-    // JPA necesita un constructor sin argumentos.
+    
     public Task() {
     }
 

@@ -28,8 +28,10 @@
     <ul id="task-list"></ul>
 
     <script>
-        // URL base de la API de Spring Boot.
-        const API = "http://localhost:8080/tasks";
+        // URL de la API. Es RELATIVA (sin http://localhost): la página y la API
+        // se sirven desde el mismo lugar, así funciona tanto en tu compu
+        // (http://localhost:8080) como en Render (https://...onrender.com).
+        const API = "/tasks";
 
         // Trae todas las tareas y las muestra en la lista.
         async function loadTasks() {
