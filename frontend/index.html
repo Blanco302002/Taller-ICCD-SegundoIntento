@@ -41,12 +41,29 @@
 
             tasks.forEach(task => {
                 const li = document.createElement("li");
-                li.textContent = task.title;
+
+                // Título de la tarea (tachado si está completada).
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = task.title;
                 if (task.completed) {
-                    li.className = "done";
+                    titleSpan.className = "done";
                 }
+
+                // Botón para eliminar esta tarea.
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Eliminar";
+                deleteButton.addEventListener("click", () => deleteTask(task.id));
+
+                li.appendChild(titleSpan);
+                li.appendChild(deleteButton);
                 list.appendChild(li);
             });
+        }
+
+        // Elimina una tarea (DELETE /tasks/{id}) y refresca la lista.
+        async function deleteTask(id) {
+            await fetch(`${API}/${id}`, { method: "DELETE" });
+            loadTasks();
         }
 
         // Maneja el formulario "Agregar": crea la tarea (POST) y refresca la lista.

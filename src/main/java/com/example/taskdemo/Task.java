@@ -6,14 +6,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 /**
- * La única entidad de dominio de esta demo.
- * Cada Task se guarda como una fila en la tabla "task" de la base H2.
+ * La única entidad que cree para la demo.
  */
 @Entity
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // la base autoincrementa el id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -29,7 +28,7 @@ public class Task {
         this.completed = completed;
     }
 
-    // --- Getters y setters (los usa Spring para mapear JSON <-> objeto) ---
+    // --- Getters y setters  ---
 
     public Long getId() {
         return id;
