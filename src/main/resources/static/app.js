@@ -25,29 +25,103 @@ async function loadTasks() {
         return;
     }
 
-    tasks.forEach(task => {
-        // Cada tarea es un item de la lista, con el texto a la izquierda
-        // y el botón de eliminar a la derecha (justify-content-between).
-        const li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between align-items-center";
+    tasks.forEach(task => list.appendChild(renderTask(task)));
+}
 
-        // Título (tachado y gris si la tarea está completada).
-        const titleSpan = document.createElement("span");
-        titleSpan.textContent = task.title;
-        if (task.completed) {
-            titleSpan.classList.add("text-decoration-line-through", "text-muted");
-        }
+// Dibuja una tarea en modo NORMAL: checkbox + título a la izquierda,
+// botones "Modificar" y "Eliminar" a la derecha.
+function renderTask(task) {
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-        // Botón rojo y chico para eliminar esta tarea.
-        const deleteButton = document.createElement("button");
-        deleteButton.className = "btn btn-danger btn-sm";
-        deleteButton.textContent = "Eliminar";
-        deleteButton.addEventListener("click", () => deleteTask(task.id));
+    // ----- Izquierda: checkbox de completada + título -----
+    const left = document.createElement("div");
+    left.className = "d-flex align-items-center gap-2";
 
-        li.appendChild(titleSpan);
-        li.appendChild(deleteButton);
-        list.appendChild(li);
+    // Checkbox: al tildarlo/destildarlo hace un PUT cambiando 'completed'.
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "form-check-input mt-0";
+    checkbox.checked = task.completed;
+    checkbox.addEventListener("change", () => updateTask(task, { completed: checkbox.checked }));
+
+    // Título (tachado y gris si la tarea está completada).
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = task.title;
+    if (task.completed) {
+        titleSpan.classList.add("text-decoration-line-through", "text-muted");
+    }
+
+    left.appendChild(checkbox);
+    left.appendChild(titleSpan);
+
+    // ----- Derecha: botones Modificar y Eliminar -----
+    const buttons = document.createElement("div");
+    buttons.className = "d-flex gap-2";
+
+    const editButton = document.createElement("button");
+    editButton.className = "btn btn-outline-secondary btn-sm";
+    editButton.textContent = "Modificar";
+    editButton.addEventListener("click", () => enterEditMode(li, task));
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "btn btn-danger btn-sm";
+    deleteButton.textContent = "Eliminar";
+    deleteButton.addEventListener("click", () => deleteTask(task.id));
+
+    buttons.appendChild(editButton);
+    buttons.appendChild(deleteButton);
+
+    li.appendChild(left);
+    li.appendChild(buttons);
+    return li;
+}
+
+// Convierte el item a modo EDICIÓN: un input con el título + Guardar/Cancelar.
+function enterEditMode(li, task) {
+    li.innerHTML = "";
+
+    // Input con el título actual (ocupa el espacio disponible).
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "form-control form-control-sm flex-grow-1 me-2";
+    input.value = task.title;
+
+    const buttons = document.createElement("div");
+    buttons.className = "d-flex gap-2";
+
+    // Guardar: PUT con el nuevo título.
+    const saveButton = document.createElement("button");
+    saveButton.className = "btn btn-success btn-sm";
+    saveButton.textContent = "Guardar";
+    saveButton.addEventListener("click", () => updateTask(task, { title: input.value }));
+
+    // Cancelar: vuelve a dibujar la lista normal, descartando el cambio.
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "btn btn-secondary btn-sm";
+    cancelButton.textContent = "Cancelar";
+    cancelButton.addEventListener("click", () => loadTasks());
+
+    buttons.appendChild(saveButton);
+    buttons.appendChild(cancelButton);
+
+    li.appendChild(input);
+    li.appendChild(buttons);
+    input.focus();
+}
+
+// Modifica una tarea (PUT /tasks/{id}). 'changes' son los campos a cambiar;
+// el resto se mantiene igual al de la tarea actual.
+async function updateTask(task, changes) {
+    const updated = { title: task.title, completed: task.completed, ...changes };
+
+    await fetch(`${API}/${task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated)
     });
+
+    loadTasks();
 }
 
 // Elimina una tarea (DELETE /tasks/{id}) y refresca la lista.
