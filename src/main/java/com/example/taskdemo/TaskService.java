@@ -25,7 +25,7 @@ public class TaskService {
     }
 
     public Task createTask(Task task) {
-        return task;
+        return repository.save(task);
     }
 
     /**
