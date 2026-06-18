@@ -49,7 +49,6 @@ mvn spring-boot:run
 
 # 2. Abrir en el navegador
 #    Frontend:      http://localhost:8080/
-#    API de tareas: http://localhost:8080/tasks
 #    Consola H2:    http://localhost:8080/h2-console
 ```
 
