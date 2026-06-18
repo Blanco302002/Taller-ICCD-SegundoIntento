@@ -16,14 +16,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests de integración: levantan el contexto completo de Spring y ejercitan
- * todo el stack (request HTTP -> controller -> service -> repositorio -> H2).
+ * Tests de integración: (request HTTP -> controller -> service -> repositorio -> H2).
  *
  * - @SpringBootTest carga el contexto real de la aplicación.
  * - @AutoConfigureMockMvc nos da MockMvc para disparar requests HTTP simuladas.
- * - @ActiveProfiles("test") usa la base de datos de test aislada (en memoria).
- * - @Transactional hace rollback de los cambios en la base después de cada
- *   test, así los tests quedan independientes y arrancan en un estado limpio.
+
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -65,4 +62,6 @@ class TaskControllerIntegrationTest {
                 .andExpect(jsonPath("$.title").value("Escribir test de integración"))
                 .andExpect(jsonPath("$.completed").value(true));
     }
+
+    // faltó escribir test de integración para PUT y DELETE.
 }
